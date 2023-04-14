@@ -36,17 +36,21 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+// Updates the price of the appointment type(s) placed on the page to the specified amount
 add_filter( 'ssa/appointment_type/prepare_item_for_response', 'ssa_filter_appointment_type_apply_discount', 10, 3 );
 function ssa_filter_appointment_type_apply_discount( $appointment_type_array, $appointment_type_id, $recursive )
 {
+    // Do nothing if the post id is not equal to 123, replace with the id of your discount page
     if ( $_GET['booking_post_id'] != 123 ) {
         return $appointment_type_array
     }
 
+    // Do nothing  if the appointment type doesn't have payments enabled
     if ( empty( $appointment_type_array['payments']['price'] ) ) {
         return $appointment_type_array;
     }
     
+    // Replace the price of the appointment type(s) with the specified amount
     $appointment_type_array['payments']['price'] = 35.00;
     return $appointment_type_array;
 }
