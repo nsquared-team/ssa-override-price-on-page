@@ -36,28 +36,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-add_filter( 'ssa_booking_appointment_types', 'ssa_booking_filter_dynamic_pricing_atts' );
-function ssa_booking_filter_dynamic_pricing_atts( $ssa_appointment_types )
+add_filter( 'ssa/appointment_type/prepare_item_for_response', 'ssa_filter_appointment_type_apply_discount', 10, 3 );
+function ssa_filter_appointment_type_apply_discount( $appointment_type_array, $appointment_type_id, $recursive )
 {
-    $page_id = get_queried_object_id();
-
-    // Allow specific pages to bypass the dynamic booking notice
-    // if ( in_array( $page_id, array( 268 ) ) ) {
-    //     Allow normal booking notice behavior on Page ID 268
-    //     return $ssa_appointment_types;
-    // }
-
-    if ( is_user_logged_in() ) {
-        foreach ( $ssa_appointment_types as $key => $appointment_type ) {
-            if ( ! isset($appointment_type['payments']['price'] ) ) {
-                continue;
-            }
-            $appointment_type['payments']['price'] = '100.00';
-            $ssa_appointment_types[$key] = $appointment_type;
-        }
+    if ( $_GET['booking_post_id'] != 123 ) {
+        return $appointment_type_array
     }
 
-    return $ssa_appointment_types;
+    if ( empty( $appointment_type_array['payments']['price'] ) ) {
+        return $appointment_type_array;
+    }
+    
+    $appointment_type_array['payments']['price'] = 35.00;
+    return $appointment_type_array;
 }
 
 
