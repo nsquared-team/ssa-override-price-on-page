@@ -42,7 +42,7 @@ function ssa_filter_appointment_type_apply_discount( $appointment_type_array, $a
 {
     // Do nothing if the post id is not equal to 123, replace with the id of your discount page
     if ( $_GET['booking_post_id'] != 123 ) {
-        return $appointment_type_array
+        return $appointment_type_array;
     }
 
     // Do nothing  if the appointment type doesn't have payments enabled
