@@ -40,19 +40,33 @@
 add_filter( 'ssa/appointment_type/prepare_item_for_response', 'ssa_filter_appointment_type_apply_discount', 10, 3 );
 function ssa_filter_appointment_type_apply_discount( $appointment_type_array, $appointment_type_id, $recursive )
 {
-    // Do nothing if the post id is not equal to 123, replace with the id of your discount page
-    if ( $_GET['booking_post_id'] != 123 ) {
-        return $appointment_type_array;
-    }
-
     // Do nothing  if the appointment type doesn't have payments enabled
     if ( empty( $appointment_type_array['payments']['price'] ) ) {
         return $appointment_type_array;
     }
-    
-    // Replace the price of the appointment type(s) with the specified amount
-    $appointment_type_array['payments']['price'] = 35.00;
+
+    $price_after_discount = 35.00;
+    $discount_page_ids = array( 123, 456 ); // replace with the ids of your discount pages
+    $should_apply_discount = false;
+
+    // override price when the booking_post_id matches
+    if ( isset( $_GET['booking_post_id'] ) && in_array( $_GET['booking_post_id'], $discount_page_ids ) ) {
+        $should_apply_discount = true;
+    }
+
+    // or when the incoming stripe webhook has the correct metadata value set for the booking_post_id
+    if ( isset( $_GET['ssa-listener'] ) && $_GET['ssa-listener'] == 'stripe' ) {
+        $payload    = @file_get_contents( 'php://input' );
+        $payload_decoded = json_decode( $payload );
+
+        if ( isset($payload_decoded->data->object->metadata->booking_post_id) && in_array($payload_decoded->data->object->metadata->booking_post_id, $discount_page_ids) ) {
+            $should_apply_discount = true;
+        }
+    }
+
+    // if $should_apply_discount is true, replace the price of the appointment type( s ) with the specified amount
+    if ( $should_apply_discount ) {
+        $appointment_type_array['payments']['price'] = $price_after_discount;
+    }
     return $appointment_type_array;
 }
-
-
